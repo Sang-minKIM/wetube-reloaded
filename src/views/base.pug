@@ -14,6 +14,18 @@ html(lang="ko")
                         a(href="/videos/upload") upload video
                     li
                         a(href="/search") search video
+                    if loggedIn
+                        li 
+                            a(href="/users/edit") Edit Profile
+                        li 
+                            a(href="/users/logout") Log Out 
+                        li 
+                            a(href="/my-profile") #{loggedInUser.name}의 Profile 
+                    else
+                        li  
+                            a(href="/join") join 
+                        li 
+                            a(href="/login") login
         main 
             block content 
 
