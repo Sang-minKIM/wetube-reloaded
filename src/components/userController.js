@@ -60,6 +60,7 @@ export const postLogin = async (req, res) => {
   }
   req.session.loggedIn = true;
   req.session.user = user;
+  console.log(req.session.user);
   return res.redirect("/");
 };
 
@@ -144,14 +145,53 @@ export const getEdit = (req, res) => {
 export const postEdit = async (req, res) => {
   const {
     session: {
-      user: { id },
+      user: { _id },
     },
     body: { name, email, username, location },
   } = req;
-  // const id = req.session.user.id
+  // const _id = req.session.user._id
   // const {name, email, username, location} = req.body;
-  await User.findByIdAndUpdate(id, { name, email, username, location });
-  return res.render("edit-profile");
+  const updatedUser = await User.findByIdAndUpdate(
+    _id,
+    { name, email, username, location },
+    { new: true }
+  );
+  req.session.user = updatedUser;
+  return res.redirect("/users/edit");
 };
+
+export const getChangePassword = (req, res) => {
+  if (req.session.user.socialOnly === true) {
+    return res.redirect("/");
+  }
+  return res.render("change-password", { pageTitle: "Change Password" });
+};
+export const postChangePassword = async (req, res) => {
+  const {
+    session: {
+      user: { _id },
+    },
+    body: { oldPassword, newPassword, newPasswordConfirmation },
+  } = req;
+  const user = await User.findById(_id);
+  const ok = await bcrypt.compare(oldPassword, user.password);
+  if (!ok) {
+    return res.status(400).render("users/change-password", {
+      pageTitle: "Change Password",
+      errorMessage: "The current password is incorrect",
+    });
+  }
+  if (newPassword !== newPasswordConfirmation) {
+    return res.status(400).render("users/change-password", {
+      pageTitle: "Change Password",
+      errorMessage: "The password does not match the confirmation",
+    });
+  }
+  user.password = newPassword;
+  await user.save();
+  req.session.destroy();
+  return res.redirect("/users/logout");
+};
+
 export const remove = (req, res) => res.send("remove");
 export const see = (req, res) => res.send("see");
