@@ -14,13 +14,13 @@ html(lang="ko")
                         a(href="/videos/upload") upload video
                     li
                         a(href="/search") search video
-                    if loggedIn
-                        li 
-                            a(href="/users/edit") Edit Profile
+                    if loggedIn                       
                         li 
                             a(href="/users/logout") Log Out 
                         li 
-                            a(href="/my-profile") #{loggedInUser.name}의 Profile 
+                            a(href=`/users/${loggedInUser._id}`) My Profile
+                        li 
+                            a(href="/users/edit") Edit Profile
                     else
                         li  
                             a(href="/join") join 
